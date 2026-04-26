@@ -4,7 +4,7 @@ import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
 import product5 from "@/assets/product-5.jpg";
 import product6 from "@/assets/product-6.jpg";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "../supabase";
 
 export interface Product {
     id: string;
@@ -34,7 +34,7 @@ export const fetchProducts = async (): Promise<Product[]> => {
 
         // Merge DB products with local fallback, avoiding duplicates by ID
         // DB products take precedence
-        const dbProductIds = new Set(data?.map(p => p.id) || []);
+        const dbProductIds = new Set(data?.map((p: Product) => p.id) || []);
         const mergedProducts = [
             ...(data || []),
             ...products.filter(p => !dbProductIds.has(p.id))

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../supabase';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
-import { Package, Upload, ArrowLeft, Plus, X, Image as ImageIcon, Check } from 'lucide-react';
+import { Upload, ArrowLeft, Plus, X, Image as ImageIcon, Check } from 'lucide-react';
 
 interface ProductFormData {
   id: string;
@@ -16,7 +16,7 @@ interface ProductFormData {
 }
 
 const categories = ["Tops", "Basics", "Bottoms", "Accessories", "Dresses", "Outerwear", "Shoes"];
-const genders = ["men", "women", "unisex"];
+// const genders = ["men", "women", "unisex"];
 
 export default function AddProduct({ onBack }: { onBack: () => void }) {
   const { user } = useAuth();
@@ -92,7 +92,7 @@ export default function AddProduct({ onBack }: { onBack: () => void }) {
       const fileName = `${productId}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `products/${fileName}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('Product_image')
         .upload(filePath, imageFile);
 

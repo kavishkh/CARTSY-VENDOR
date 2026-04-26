@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
-import { Search, Trash2, Edit, ExternalLink, MoreVertical, LayoutGrid, List as ListIcon, X, Filter } from 'lucide-react';
+import { Search, Trash2, Edit, ExternalLink, LayoutGrid, List as ListIcon, X, Filter } from 'lucide-react';
 
 export default function ProductList() {
   const { user } = useAuth();
