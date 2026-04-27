@@ -192,7 +192,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (page: string) =
           <div className="pt-8">
             <div className="text-[9px] font-mono uppercase tracking-[0.3em] font-bold mb-4">Status: Operating</div>
             <a 
-              href="http://localhost:8080" 
+              href={import.meta.env.VITE_MAIN_SITE_URL || "http://localhost:8080"} 
               target="_blank" 
               rel="noreferrer"
               className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest font-bold border-b-2 border-background w-fit pb-1 group-hover:gap-4 transition-all"
