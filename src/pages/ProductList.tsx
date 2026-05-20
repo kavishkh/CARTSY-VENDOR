@@ -19,10 +19,11 @@ export default function ProductList() {
 
   async function fetchProducts() {
     setLoading(true);
-    // Fetch all products to ensure "both databases look same"
+    // Fetch only products belonging to this vendor for complete isolation
     const { data, error } = await supabase
       .from('products')
       .select('*')
+      .eq('vendor_id', user?.id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -152,7 +153,10 @@ export default function ProductList() {
                     <h3 className="text-sm font-bold uppercase tracking-tight truncate">{p.name}</h3>
                     <div className="text-accent font-bold text-sm tracking-tighter">{p.price}</div>
                   </div>
-                  <div className="flex justify-between items-center mt-6">
+                  <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4">
+                    Stock: <span className={Number(p.quantity ?? 10) <= 3 ? "text-destructive font-bold animate-pulse" : "text-foreground font-bold"}>{p.quantity ?? 10} units left</span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
                     <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest italic">{p.gender} collection</span>
                     <button className="text-muted-foreground hover:text-accent transition-colors">
                       <ExternalLink size={14} />
@@ -170,7 +174,7 @@ export default function ProductList() {
                   <th className="px-8 py-4">Piece</th>
                   <th className="px-8 py-4">Category</th>
                   <th className="px-8 py-4">Valuation</th>
-                  <th className="px-8 py-4">Status</th>
+                  <th className="px-8 py-4">Stock</th>
                   <th className="px-8 py-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -187,11 +191,10 @@ export default function ProductList() {
                     </td>
                     <td className="px-8 py-4 uppercase tracking-widest text-[10px]">{p.category}</td>
                     <td className="px-8 py-4 font-bold text-accent">{p.price}</td>
-                    <td className="px-8 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-                        <span className="uppercase text-[9px] tracking-widest">Active</span>
-                      </div>
+                    <td className="px-8 py-4 font-mono">
+                      <span className={Number(p.quantity ?? 10) <= 3 ? "text-destructive font-bold" : "text-foreground"}>
+                        {p.quantity ?? 10} units
+                      </span>
                     </td>
                     <td className="px-8 py-4 text-right">
                        <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">

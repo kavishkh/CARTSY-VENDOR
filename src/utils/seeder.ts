@@ -36,11 +36,27 @@ const defaultProducts = [
     }
 ];
 
-export async function seedDatabase() {
-    const { data: existing } = await supabase.from('products').select('id');
+export async function seedDatabase(vendorId?: string) {
+    if (!vendorId) return { success: true, count: 0 };
+
+    const { data: existing } = await supabase
+        .from('products')
+        .select('id')
+        .eq('vendor_id', vendorId);
+        
     const existingIds = new Set(existing?.map(p => p.id) || []);
     
-    const itemsToSeed = defaultProducts.filter(p => !existingIds.has(p.id));
+    const itemsToSeed = defaultProducts
+        .map(p => {
+            const uniqueId = `${p.id}-${vendorId.substring(0, 8)}`;
+            return {
+                ...p,
+                id: uniqueId,
+                vendor_id: vendorId,
+                quantity: 12 // Default initial stock for demo
+            };
+        })
+        .filter(p => !existingIds.has(p.id));
     
     if (itemsToSeed.length === 0) return { success: true, count: 0 };
     

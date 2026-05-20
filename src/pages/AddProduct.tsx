@@ -13,6 +13,7 @@ interface ProductFormData {
   description: string;
   details: string[];
   image: string;
+  quantity: number;
 }
 
 const categories = ["Tops", "Basics", "Bottoms", "Accessories", "Dresses", "Outerwear", "Shoes"];
@@ -34,6 +35,7 @@ export default function AddProduct({ onBack }: { onBack: () => void }) {
     description: '',
     details: [],
     image: '',
+    quantity: 10,
   });
 
   const handleAddDetail = () => {
@@ -117,6 +119,7 @@ export default function AddProduct({ onBack }: { onBack: () => void }) {
       image: imageUrl,
       images: [imageUrl],
       vendor_id: user?.id,
+      quantity: Number(formData.quantity),
       created_at: new Date().toISOString()
     };
 
@@ -228,6 +231,21 @@ export default function AddProduct({ onBack }: { onBack: () => void }) {
           </div>
 
           <div className="group relative">
+            <label className="block font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2 group-focus-within:text-accent transition-colors font-bold">
+              Stock Quantity *
+            </label>
+            <input
+              type="number"
+              required
+              min="0"
+              value={formData.quantity}
+              onChange={(e) => setFormData(p => ({ ...p, quantity: Number(e.target.value) }))}
+              className="w-full bg-transparent border-b border-border py-3 px-0 outline-none focus:border-accent transition-all font-mono text-sm placeholder:text-muted-foreground/20"
+              placeholder="10"
+            />
+          </div>
+
+          <div className="group relative md:col-span-2">
             <label className="block font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2 group-focus-within:text-accent transition-colors">
               Category / Collective
             </label>

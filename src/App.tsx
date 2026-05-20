@@ -6,7 +6,8 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import ProductList from './pages/ProductList';
 import AddProduct from './pages/AddProduct';
-import { LayoutGrid, Package, PlusCircle, LogOut, Settings, Bell, User as UserIcon } from 'lucide-react';
+import Orders from './pages/Orders';
+import { LayoutGrid, Package, PlusCircle, LogOut, Settings, Bell, User as UserIcon, ShoppingBag } from 'lucide-react';
 
 function AppContent() {
   const { user, loading, signOut } = useAuth();
@@ -51,6 +52,12 @@ function AppContent() {
             <Package size={16} /> My Inventory
           </button>
           <button 
+            className={`w-full flex items-center gap-3 px-8 py-3 text-sm transition-all text-left ${activePage === 'orders' ? 'text-accent border-r-2 border-accent bg-accent/10' : 'text-muted-foreground hover:bg-border/50 hover:text-foreground'}`}
+            onClick={() => setActivePage('orders')}
+          >
+            <ShoppingBag size={16} /> My Orders
+          </button>
+          <button 
             className={`w-full flex items-center gap-3 px-8 py-3 text-sm transition-all text-left ${activePage === 'add-product' ? 'text-accent border-r-2 border-accent bg-accent/10' : 'text-muted-foreground hover:bg-border/50 hover:text-foreground'}`}
             onClick={() => setActivePage('add-product')}
           >
@@ -89,6 +96,7 @@ function AppContent() {
 
         {activePage === 'dashboard' && <Dashboard onNavigate={setActivePage} />}
         {activePage === 'products' && <ProductList />}
+        {activePage === 'orders' && <Orders />}
         {activePage === 'add-product' && <AddProduct onBack={() => setActivePage('dashboard')} />}
       </main>
     </div>

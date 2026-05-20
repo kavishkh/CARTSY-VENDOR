@@ -62,7 +62,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (page: string) =
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      const result = await seedDatabase();
+      const result = await seedDatabase(user?.id);
       if (result.count > 0) {
         toast.success(`Synced ${result.count} pieces to the database`);
         fetchDashboardData();
