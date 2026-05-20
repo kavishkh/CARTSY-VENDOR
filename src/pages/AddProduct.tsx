@@ -16,7 +16,7 @@ interface ProductFormData {
   quantity: number;
 }
 
-const categories = ["Tops", "Basics", "Bottoms", "Accessories", "Dresses", "Outerwear", "Shoes"];
+const categories = ["Tops", "Basics", "Bottoms", "Accessories", "Dresses", "Outerwear", "Shoes", "Electronics"];
 // const genders = ["men", "women", "unisex"];
 
 export default function AddProduct({ onBack }: { onBack: () => void }) {
