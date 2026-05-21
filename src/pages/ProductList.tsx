@@ -4,7 +4,9 @@ import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { Search, Trash2, Edit, ExternalLink, LayoutGrid, List as ListIcon, X, Filter } from 'lucide-react';
 
-export default function ProductList() {
+const MAIN_SITE_URL = import.meta.env.VITE_MAIN_SITE_URL || "http://localhost:8080";
+
+export default function ProductList({ onEdit }: { onEdit?: (product: any) => void }) {
   const { user } = useAuth();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,18 +122,30 @@ export default function ProductList() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredProducts.map((p) => (
               <div key={p.id} className="group border border-border bg-card/20 hover:border-accent/40 transition-all duration-500 overflow-hidden relative">
-                <div className="aspect-[3/4] overflow-hidden relative">
+                <div 
+                  onClick={() => window.open(`${MAIN_SITE_URL}/product/${p.id}`, '_blank', 'noopener,noreferrer')}
+                  className="aspect-[3/4] overflow-hidden relative cursor-pointer"
+                >
                   <img src={p.image} alt={p.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 pointer-events-none group-hover:pointer-events-auto">
                     {p.vendor_id === user?.id ? (
                       <>
                         <button 
-                          onClick={() => handleDelete(p.id, p.name)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(p.id, p.name);
+                          }}
                           className="w-10 h-10 bg-destructive text-white flex items-center justify-center hover:scale-110 transition-transform pointer-events-auto"
                         >
                           <Trash2 size={18} />
                         </button>
-                        <button className="w-10 h-10 bg-accent text-background flex items-center justify-center hover:scale-110 transition-transform pointer-events-auto">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit?.(p);
+                          }}
+                          className="w-10 h-10 bg-accent text-background flex items-center justify-center hover:scale-110 transition-transform pointer-events-auto"
+                        >
                           <Edit size={18} />
                         </button>
                       </>
@@ -158,7 +172,10 @@ export default function ProductList() {
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest italic">{p.gender} collection</span>
-                    <button className="text-muted-foreground hover:text-accent transition-colors">
+                    <button 
+                      onClick={() => window.open(`${MAIN_SITE_URL}/product/${p.id}`, '_blank', 'noopener,noreferrer')}
+                      className="text-muted-foreground hover:text-accent transition-colors"
+                    >
                       <ExternalLink size={14} />
                     </button>
                   </div>
@@ -183,7 +200,10 @@ export default function ProductList() {
                   <tr key={p.id} className="hover:bg-border/10 transition-all group">
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 border border-border grayscale group-hover:grayscale-0 transition-all">
+                        <div 
+                          onClick={() => window.open(`${MAIN_SITE_URL}/product/${p.id}`, '_blank', 'noopener,noreferrer')}
+                          className="w-10 h-10 border border-border grayscale group-hover:grayscale-0 transition-all cursor-pointer"
+                        >
                           <img src={p.image} alt="" className="w-full h-full object-cover" />
                         </div>
                         <span className="font-bold uppercase tracking-tight">{p.name}</span>
@@ -200,7 +220,12 @@ export default function ProductList() {
                        <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                          {p.vendor_id === user?.id ? (
                            <>
-                             <button className="p-2 hover:text-accent transition-colors"><Edit size={16} /></button>
+                             <button 
+                                onClick={() => onEdit?.(p)}
+                                className="p-2 hover:text-accent transition-colors"
+                              >
+                                <Edit size={16} />
+                              </button>
                              <button onClick={() => handleDelete(p.id, p.name)} className="p-2 hover:text-destructive transition-colors"><Trash2 size={16} /></button>
                            </>
                          ) : (

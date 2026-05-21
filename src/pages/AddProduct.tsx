@@ -19,7 +19,7 @@ interface ProductFormData {
 const categories = ["Tops", "Basics", "Bottoms", "Accessories", "Dresses", "Outerwear", "Shoes", "Electronics"];
 // const genders = ["men", "women", "unisex"];
 
-export default function AddProduct({ onBack }: { onBack: () => void }) {
+export default function AddProduct({ onBack, productToEdit }: { onBack: () => void; productToEdit?: any }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [detailInput, setDetailInput] = useState('');
@@ -27,15 +27,15 @@ export default function AddProduct({ onBack }: { onBack: () => void }) {
   const [previewUrl, setPreviewUrl] = useState<string>('');
   
   const [formData, setFormData] = useState<ProductFormData>({
-    id: '',
-    name: '',
-    price: '',
-    category: 'Tops',
-    gender: 'unisex',
-    description: '',
-    details: [],
-    image: '',
-    quantity: 10,
+    id: productToEdit?.id || '',
+    name: productToEdit?.name || '',
+    price: productToEdit?.price ? productToEdit.price.replace(/[₹,]/g, '') : '',
+    category: productToEdit?.category || 'Tops',
+    gender: productToEdit?.gender || 'unisex',
+    description: productToEdit?.description || '',
+    details: productToEdit?.details || [],
+    image: productToEdit?.image || '',
+    quantity: productToEdit?.quantity !== undefined ? productToEdit.quantity : 10,
   });
 
   const handleAddDetail = () => {
@@ -85,7 +85,7 @@ export default function AddProduct({ onBack }: { onBack: () => void }) {
 
     const nameSlug = formData.name.toLowerCase().trim().replace(/\s+/g, '-');
     const randomSuffix = Math.random().toString(36).substring(2, 7);
-    const productId = formData.id || `${nameSlug}-${randomSuffix}`;
+    const productId = productToEdit?.id || formData.id || `${nameSlug}-${randomSuffix}`;
     let imageUrl = formData.image;
 
     // Upload image if selected
@@ -113,27 +113,51 @@ export default function AddProduct({ onBack }: { onBack: () => void }) {
     }
 
     const productToSave = {
-      ...formData,
-      id: productId,
+      name: formData.name,
       price: formattedPrice,
+      category: formData.category,
+      gender: formData.gender,
+      description: formData.description,
+      details: formData.details,
       image: imageUrl,
       images: [imageUrl],
-      vendor_id: user?.id,
-      quantity: Number(formData.quantity),
-      created_at: new Date().toISOString()
+      quantity: Number(formData.quantity)
     };
 
-    const { error } = await supabase
-      .from('products')
-      .insert([productToSave]);
+    if (productToEdit) {
+      // Update existing product
+      const { error } = await supabase
+        .from('products')
+        .update(productToSave)
+        .eq('id', productToEdit.id);
 
-    if (error) {
-      console.error('Insert error:', error);
-      toast.error(`Failed to add product: ${error.message}`);
+      if (error) {
+        console.error('Update error:', error);
+        toast.error(`Failed to update product: ${error.message}`);
+      } else {
+        toast.success('Product updated successfully!');
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        onBack();
+      }
     } else {
-      toast.success('Product listed successfully!');
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      onBack();
+      // Insert new product
+      const { error } = await supabase
+        .from('products')
+        .insert([{
+          ...productToSave,
+          id: productId,
+          vendor_id: user?.id,
+          created_at: new Date().toISOString()
+        }]);
+
+      if (error) {
+        console.error('Insert error:', error);
+        toast.error(`Failed to add product: ${error.message}`);
+      } else {
+        toast.success('Product listed successfully!');
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        onBack();
+      }
     }
     setLoading(false);
   };
@@ -148,8 +172,12 @@ export default function AddProduct({ onBack }: { onBack: () => void }) {
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 className="text-4xl font-display font-bold uppercase tracking-tight">New Curation</h1>
-          <p className="text-muted-foreground font-mono text-[10px] uppercase tracking-widest mt-1">List a piece in the architectural collective</p>
+          <h1 className="text-4xl font-display font-bold uppercase tracking-tight">
+            {productToEdit ? 'Edit Curation' : 'New Curation'}
+          </h1>
+          <p className="text-muted-foreground font-mono text-[10px] uppercase tracking-widest mt-1">
+            {productToEdit ? 'Modify a piece in the architectural collective' : 'List a piece in the architectural collective'}
+          </p>
         </div>
       </header>
 
@@ -183,13 +211,14 @@ export default function AddProduct({ onBack }: { onBack: () => void }) {
           <div className="space-y-6">
              <div className="group relative">
                 <label className="block font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2 group-focus-within:text-accent transition-colors">
-                  Reference ID (Optional)
+                  Reference ID {productToEdit ? '(Immutable)' : '(Optional)'}
                 </label>
                 <input
                   type="text"
+                  disabled={!!productToEdit}
                   value={formData.id}
                   onChange={(e) => setFormData(p => ({ ...p, id: e.target.value }))}
-                  className="w-full bg-transparent border-b border-border py-2 px-0 outline-none focus:border-accent transition-all font-mono text-xs placeholder:text-muted-foreground/20"
+                  className="w-full bg-transparent border-b border-border py-2 px-0 outline-none focus:border-accent transition-all font-mono text-xs placeholder:text-muted-foreground/20 disabled:opacity-50"
                   placeholder="e.g. premium-wool-scuplt"
                 />
               </div>
@@ -339,7 +368,7 @@ export default function AddProduct({ onBack }: { onBack: () => void }) {
               disabled={loading}
               className="flex-1 bg-foreground text-background font-mono text-[11px] uppercase tracking-[0.3em] font-bold py-6 hover:bg-accent hover:text-background transition-all disabled:opacity-50"
             >
-              {loading ? 'Processing...' : 'Publish to Collective'}
+              {loading ? 'Processing...' : (productToEdit ? 'Save Changes' : 'Publish to Collective')}
             </button>
             <button
               type="button"

@@ -13,6 +13,7 @@ function AppContent() {
   const { user, loading, signOut } = useAuth();
   const [activePage, setActivePage] = useState('dashboard');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [productToEdit, setProductToEdit] = useState<any | null>(null);
 
   if (loading) {
     return (
@@ -28,6 +29,11 @@ function AppContent() {
       : <Signup onSignIn={() => setAuthMode('login')} />;
   }
 
+  const navigateTo = (page: string) => {
+    setActivePage(page);
+    setProductToEdit(null);
+  };
+
   return (
     <div className="flex min-h-screen bg-background text-foreground font-mono">
       {/* Sidebar */}
@@ -41,25 +47,25 @@ function AppContent() {
           <div className="px-8 text-[9px] uppercase tracking-[0.2em] text-muted-foreground mb-4">Main Menu</div>
           <button 
             className={`w-full flex items-center gap-3 px-8 py-3 text-sm transition-all text-left ${activePage === 'dashboard' ? 'text-accent border-r-2 border-accent bg-accent/10' : 'text-muted-foreground hover:bg-border/50 hover:text-foreground'}`}
-            onClick={() => setActivePage('dashboard')}
+            onClick={() => navigateTo('dashboard')}
           >
             <LayoutGrid size={16} /> Dashboard
           </button>
           <button 
-            className={`w-full flex items-center gap-3 px-8 py-3 text-sm transition-all text-left ${activePage === 'products' ? 'text-accent border-r-2 border-accent bg-accent/10' : 'text-muted-foreground hover:bg-border/50 hover:text-foreground'}`}
-            onClick={() => setActivePage('products')}
+            className={`w-full flex items-center gap-3 px-8 py-3 text-sm transition-all text-left ${activePage === 'products' || activePage === 'edit-product' ? 'text-accent border-r-2 border-accent bg-accent/10' : 'text-muted-foreground hover:bg-border/50 hover:text-foreground'}`}
+            onClick={() => navigateTo('products')}
           >
             <Package size={16} /> My Inventory
           </button>
           <button 
             className={`w-full flex items-center gap-3 px-8 py-3 text-sm transition-all text-left ${activePage === 'orders' ? 'text-accent border-r-2 border-accent bg-accent/10' : 'text-muted-foreground hover:bg-border/50 hover:text-foreground'}`}
-            onClick={() => setActivePage('orders')}
+            onClick={() => navigateTo('orders')}
           >
             <ShoppingBag size={16} /> My Orders
           </button>
           <button 
             className={`w-full flex items-center gap-3 px-8 py-3 text-sm transition-all text-left ${activePage === 'add-product' ? 'text-accent border-r-2 border-accent bg-accent/10' : 'text-muted-foreground hover:bg-border/50 hover:text-foreground'}`}
-            onClick={() => setActivePage('add-product')}
+            onClick={() => navigateTo('add-product')}
           >
             <PlusCircle size={16} /> Add Product
           </button>
@@ -94,10 +100,23 @@ function AppContent() {
           </div>
         </header>
 
-        {activePage === 'dashboard' && <Dashboard onNavigate={setActivePage} />}
-        {activePage === 'products' && <ProductList />}
+        {activePage === 'dashboard' && <Dashboard onNavigate={navigateTo} />}
+        {activePage === 'products' && (
+          <ProductList 
+            onEdit={(product) => {
+              setProductToEdit(product);
+              setActivePage('edit-product');
+            }} 
+          />
+        )}
         {activePage === 'orders' && <Orders />}
-        {activePage === 'add-product' && <AddProduct onBack={() => setActivePage('dashboard')} />}
+        {activePage === 'add-product' && <AddProduct onBack={() => navigateTo('dashboard')} />}
+        {activePage === 'edit-product' && (
+          <AddProduct 
+            productToEdit={productToEdit} 
+            onBack={() => navigateTo('products')} 
+          />
+        )}
       </main>
     </div>
   );
